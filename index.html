@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vietnam NCD Burden Model · Strategic Health Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0d0d0b;
+  --ink-2: #2a2a26;
+  --ink-3: #4a4a44;
+  --ink-4: #7a7a72;
+  --ink-5: #b0b0a6;
+  --paper: #f5f3ee;
+  --paper-2: #eceae3;
+  --paper-3: #e2e0d8;
+  --white: #fafaf7;
+  --rule: rgba(13,13,11,0.10);
+  --rule-strong: rgba(13,13,11,0.20);
+
+  --cardio: #c8392b;
+  --cardio-light: #f5e0de;
+  --cancer: #4a3fa8;
+  --cancer-light: #e4e2f7;
+  --copd: #1a7a56;
+  --copd-light: #d8f0e7;
+
+  --accent: #c8392b;
+  --gold: #b8860b;
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── MASTHEAD ── */
+.masthead {
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0 3rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--white);
+}
+.masthead-brand {
+  padding: 1.25rem 0;
+  border-right: 1px solid var(--rule-strong);
+  padding-right: 2rem;
+  margin-right: 2rem;
+}
+.masthead-brand .firm { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 2px; }
+.masthead-brand .report-title { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--ink); line-height: 1.2; }
+.masthead-meta {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+.masthead-meta .meta-item { font-size: 11px; color: var(--ink-4); letter-spacing: 0.05em; }
+.masthead-meta .meta-item strong { display: block; font-size: 12px; color: var(--ink-2); font-weight: 600; letter-spacing: 0; margin-bottom: 1px; }
+.masthead-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  align-self: center;
+  font-weight: 600;
+}
+
+/* ── LAYOUT ── */
+.page { max-width: 1100px; margin: 0 auto; padding: 2.5rem 3rem 4rem; }
+
+/* ── CHAPTER HEADERS ── */
+.chapter {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 2.5rem 0 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule-strong);
+}
+.chapter-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.chapter-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--ink);
+  font-weight: 400;
+}
+.chapter-sub {
+  font-size: 12px;
+  color: var(--ink-4);
+  margin-left: auto;
+  letter-spacing: 0.03em;
+}
+
+/* ── CONTROL STRIP ── */
+.control-strip {
+  background: var(--white);
+  border: 1px solid var(--rule-strong);
+  padding: 1.25rem 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.ctrl-group label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 6px;
+}
+.ctrl-group .ctrl-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.ctrl-group input[type=range] {
+  width: 100%;
+  height: 3px;
+  appearance: none;
+  background: var(--rule-strong);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.ctrl-group input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--white);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.yr-strip {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--white);
+  overflow: hidden;
+}
+.yr-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-right: 1px solid var(--rule-strong);
+  background: transparent;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-4);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.yr-btn:last-child { border-right: none; }
+.yr-btn:hover { background: var(--paper-2); color: var(--ink); }
+.yr-btn.active { background: var(--ink); color: var(--white); }
+.yr-btn .yr-label { display: block; font-weight: 600; font-size: 14px; }
+.yr-btn .yr-delta { display: block; font-size: 10px; margin-top: 1px; opacity: 0.7; font-family: 'DM Mono', monospace; }
+
+/* ── KPI STRIP ── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0,1fr));
+  gap: 0;
+  border: 1px solid var(--rule-strong);
+  background: var(--white);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.kpi {
+  padding: 1.25rem 1.25rem;
+  border-right: 1px solid var(--rule);
+  position: relative;
+}
+.kpi:last-child { border-right: none; }
+.kpi-label {
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 6px;
+}
+.kpi-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.kpi-sub {
+  font-size: 11px;
+  color: var(--ink-4);
+  font-family: 'DM Mono', monospace;
+}
+.kpi-trend {
+  position: absolute;
+  top: 1.25rem;
+  right: 1rem;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--accent);
+}
+
+/* ── GRID LAYOUTS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.grid-1-3 { display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem; }
+
+/* ── CHART CARDS ── */
+.chart-card {
+  background: var(--white);
+  border: 1px solid var(--rule-strong);
+  padding: 1.25rem 1.5rem 1.25rem;
+}
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+.chart-card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.chart-card-sub {
+  font-size: 11px;
+  color: var(--ink-4);
+  margin-top: 2px;
+}
+.chart-tag {
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  border: 1px solid var(--rule-strong);
+  padding: 3px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.chart-wrap { position: relative; width: 100%; }
+
+/* ── DISEASE SLIDERS ── */
+.disease-block {
+  background: var(--white);
+  border: 1px solid var(--rule-strong);
+  overflow: hidden;
+}
+.disease-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--rule);
+  gap: 10px;
+}
+.disease-color-bar { width: 3px; height: 28px; flex-shrink: 0; }
+.disease-name { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; flex: 1; }
+.disease-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+.disease-body { padding: 1rem 1.25rem; }
+.slider-track-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
+.track-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--ink-4); min-width: 28px; }
+.track-label.r { text-align: right; }
+.disease-slider {
+  flex: 1;
+  height: 3px;
+  appearance: none;
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+.disease-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  box-shadow: 0 0 0 1px currentColor;
+  cursor: grab;
+}
+.disease-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--rule);
+  margin-top: 0.75rem;
+}
+.ds-item {
+  padding: 0.75rem 0;
+  border-right: 1px solid var(--rule);
+  text-align: center;
+}
+.ds-item:last-child { border-right: none; }
+.ds-label { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 3px; }
+.ds-val { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--ink); }
+
+/* ── LEGEND ── */
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--ink-4);
+}
+.leg { display: flex; align-items: center; gap: 6px; }
+.leg-sq { width: 10px; height: 10px; flex-shrink: 0; }
+
+/* ── INSIGHT BOX ── */
+.insight-box {
+  background: var(--ink);
+  color: var(--white);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.insight-label {
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-5);
+  margin-bottom: 8px;
+}
+.insight-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #f0ede6;
+}
+.insight-text span { color: #e8a89c; }
+
+/* ── WATERFALL / SPECIALTY TABLE ── */
+.spec-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.spec-table th {
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  text-align: left;
+  padding: 6px 10px 8px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-weight: 500;
+}
+.spec-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: middle;
+}
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table .mono { font-family: 'DM Mono', monospace; font-size: 11px; }
+.bar-cell { display: flex; align-items: center; gap: 8px; }
+.bar-fill { height: 6px; border-radius: 1px; flex-shrink: 0; transition: width 0.4s ease; }
+.bar-bg { flex: 1; height: 6px; background: var(--paper-2); border-radius: 1px; overflow: hidden; display: flex; }
+
+/* ── DONUT ── */
+.donut-wrap { position: relative; }
+.donut-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+.donut-center-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: var(--ink);
+  line-height: 1;
+}
+.donut-center-label { font-size: 10px; color: var(--ink-4); letter-spacing: 0.05em; margin-top: 2px; }
+
+/* ── FOOTER ── */
+.report-footer {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--ink-5);
+  letter-spacing: 0.04em;
+}
+
+/* ── SCENARIO BADGE ── */
+.scenario-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+.scen-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--ink-4);
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+}
+.scen-btn:hover { background: var(--paper-2); color: var(--ink); }
+.scen-btn.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.scen-label { font-size: 10px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink-4); margin-right: 4px; }
+
+@media (max-width: 768px) {
+  .masthead { padding: 0 1.25rem; }
+  .page { padding: 1.5rem 1.25rem 3rem; }
+  .control-strip { grid-template-columns: 1fr 1fr; }
+  .kpi-strip { grid-template-columns: 1fr 1fr; }
+  .kpi:nth-child(2) { border-right: none; }
+  .kpi:nth-child(3),
+  .kpi:nth-child(4) { border-top: 1px solid var(--rule); }
+  .grid-2, .grid-3, .grid-3-1, .grid-1-3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-brand">
+    <div class="firm">Strategic Health Intelligence</div>
+    <div class="report-title">Vietnam NCD<br>Burden Model</div>
+  </div>
+  <div class="masthead-meta">
+    <div class="meta-item"><strong>Geography</strong>Vietnam</div>
+    <div class="meta-item"><strong>Specialties</strong>Cardiovascular · Oncology · Respiratory</div>
+    <div class="meta-item"><strong>Horizon</strong>2025 – 2040</div>
+    <div class="meta-item"><strong>Updated</strong>April 2026</div>
+  </div>
+  <div class="masthead-badge">Live Model</div>
+</div>
+
+<div class="page">
+
+  <!-- §1 INPUTS -->
+  <div class="chapter">
+    <span class="chapter-num">01</span>
+    <span class="chapter-title">Model inputs &amp; assumptions</span>
+    <span class="chapter-sub">Adjust sliders to update all outputs in real time</span>
+  </div>
+
+  <div class="control-strip">
+    <div class="ctrl-group">
+      <label>Adult population base</label>
+      <div class="ctrl-val" id="pop-out">72.0M</div>
+      <input type="range" id="pop" min="50" max="100" step="0.5" value="72" />
+    </div>
+    <div class="ctrl-group">
+      <label>Annual pop. growth rate</label>
+      <div class="ctrl-val" id="growth-out">1.2%</div>
+      <input type="range" id="growth" min="0" max="3" step="0.1" value="1.2" />
+    </div>
+    <div class="ctrl-group">
+      <label>Treatment rate (avg)</label>
+      <div class="ctrl-val" id="treat-out">24%</div>
+      <input type="range" id="treat" min="5" max="60" step="1" value="24" />
+    </div>
+    <div class="ctrl-group">
+      <label>Annual prev. drift (cardio)</label>
+      <div class="ctrl-val" id="drift-out">+0.40pp</div>
+      <input type="range" id="drift" min="0.1" max="1.0" step="0.05" value="0.4" />
+    </div>
+  </div>
+
+  <div class="scenario-row">
+    <span class="scen-label">Scenario</span>
+    <button class="scen-btn" data-s="low" onclick="setScen('low')">Conservative</button>
+    <button class="scen-btn active" data-s="high" onclick="setScen('high')">High burden</button>
+    <button class="scen-btn" data-s="custom" onclick="setScen('custom')">Custom</button>
+  </div>
+
+  <!-- DISEASE SLIDERS -->
+  <div class="grid-3" id="disease-sliders"></div>
+
+  <!-- §2 EXECUTIVE SUMMARY -->
+  <div class="chapter">
+    <span class="chapter-num">02</span>
+    <span class="chapter-title">Executive summary</span>
+    <span class="chapter-sub">Projection year: <span id="yr-label-head">2025</span></span>
+  </div>
+
+  <div class="yr-strip" id="yr-strip">
+    <button class="yr-btn active" data-yr="0" onclick="setYear(0)"><span class="yr-label">2025</span><span class="yr-delta">Base year</span></button>
+    <button class="yr-btn" data-yr="5" onclick="setYear(5)"><span class="yr-label">2030</span><span class="yr-delta" id="yd-5">—</span></button>
+    <button class="yr-btn" data-yr="10" onclick="setYear(10)"><span class="yr-label">2035</span><span class="yr-delta" id="yd-10">—</span></button>
+    <button class="yr-btn" data-yr="15" onclick="setYear(15)"><span class="yr-label">2040</span><span class="yr-delta" id="yd-15">—</span></button>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="kpi-label">Total NCD patients</div>
+      <div class="kpi-val" id="kpi-total">—</div>
+      <div class="kpi-sub" id="kpi-total-sub">3 specialties</div>
+      <div class="kpi-trend" id="kpi-total-trend">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Untreated patients</div>
+      <div class="kpi-val" id="kpi-untreated">—</div>
+      <div class="kpi-sub" id="kpi-untreated-sub">treatment gap</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Projected population</div>
+      <div class="kpi-val" id="kpi-pop">—</div>
+      <div class="kpi-sub" id="kpi-pop-sub">adult base</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">NCD share of deaths</div>
+      <div class="kpi-val">84%</div>
+      <div class="kpi-sub">MOH 2024 estimate</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Cardio deaths / yr</div>
+      <div class="kpi-val" id="kpi-deaths">—</div>
+      <div class="kpi-sub">est. premature</div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">Key finding</div>
+    <div class="insight-text" id="insight-text">Loading…</div>
+  </div>
+
+  <!-- §3 PATIENT VOLUME PROJECTIONS -->
+  <div class="chapter">
+    <span class="chapter-num">03</span>
+    <span class="chapter-title">Patient volume projections</span>
+    <span class="chapter-sub">Millions of affected adults · 2025–2040</span>
+  </div>
+
+  <div class="grid-3-1">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-card-title">Projected patient volumes by specialty</div>
+          <div class="chart-card-sub">Total affected adult population across the projection horizon</div>
+        </div>
+        <span class="chart-tag">Line · M patients</span>
+      </div>
+      <div class="legend-row" id="line-legend"></div>
+      <div class="chart-wrap" style="height:260px;"><canvas id="lineChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-card-title">Share of total NCD burden</div>
+          <div class="chart-card-sub">At selected year</div>
+        </div>
+        <span class="chart-tag">Donut</span>
+      </div>
+      <div class="donut-wrap" style="height:200px; position:relative;">
+        <canvas id="donutChart"></canvas>
+        <div class="donut-center">
+          <div class="donut-center-val" id="donut-center-val">—</div>
+          <div class="donut-center-label">total (M)</div>
+        </div>
+      </div>
+      <div class="legend-row" id="donut-legend" style="margin-top:10px; justify-content:center;"></div>
+    </div>
+  </div>
+
+  <!-- §4 TREATED vs UNTREATED -->
+  <div class="chapter">
+    <span class="chapter-num">04</span>
+    <span class="chapter-title">Treatment gap analysis</span>
+    <span class="chapter-sub">Treated vs. untreated at selected projection year</span>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-card-title">Treated vs. untreated — stacked</div>
+          <div class="chart-card-sub">Millions of patients by specialty</div>
+        </div>
+        <span class="chart-tag">Stacked bar</span>
+      </div>
+      <div class="chart-wrap" style="height:240px;"><canvas id="stackedBar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-card-title">Year-on-year volume growth</div>
+          <div class="chart-card-sub">Incremental new patients added per 5-year period</div>
+        </div>
+        <span class="chart-tag">Bar · incremental</span>
+      </div>
+      <div class="chart-wrap" style="height:240px;"><canvas id="incrBar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- §5 SPECIALTY DEEP DIVE TABLE -->
+  <div class="chapter">
+    <span class="chapter-num">05</span>
+    <span class="chapter-title">Specialty comparison</span>
+    <span class="chapter-sub">Side-by-side metrics at selected projection year</span>
+  </div>
+
+  <div class="chart-card" style="margin-bottom:1rem;">
+    <table class="spec-table" id="spec-table">
+      <thead>
+        <tr>
+          <th>Specialty</th>
+          <th>Prevalence</th>
+          <th>Total patients</th>
+          <th>Treated</th>
+          <th>Untreated</th>
+          <th>Treatment gap</th>
+          <th style="min-width:140px;">Patient volume (relative)</th>
+        </tr>
+      </thead>
+      <tbody id="spec-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- §6 SCENARIO COMPARISON -->
+  <div class="chapter">
+    <span class="chapter-num">06</span>
+    <span class="chapter-title">Scenario sensitivity — 2040 outlook</span>
+    <span class="chapter-sub">Conservative vs. high-burden total patient volumes by specialty</span>
+  </div>
+
+  <div class="chart-card" style="margin-bottom:1rem;">
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-card-title">Total patients in 2040 under three scenarios</div>
+        <div class="chart-card-sub">Conservative (lower bound) · High burden (upper bound) · Custom</div>
+      </div>
+      <span class="chart-tag">Grouped bar · 2040</span>
+    </div>
+    <div class="legend-row" id="scen-legend"></div>
+    <div class="chart-wrap" style="height:240px;"><canvas id="scenBar"></canvas></div>
+  </div>
+
+  <!-- §7 RADAR -->
+  <div class="chapter">
+    <span class="chapter-num">07</span>
+    <span class="chapter-title">Burden profile — multidimensional</span>
+    <span class="chapter-sub">Relative intensity across key dimensions at selected year</span>
+  </div>
+
+  <div class="grid-1-3">
+    <div class="chart-card" style="display:flex; flex-direction:column; justify-content:center;">
+      <div class="insight-label" style="color:var(--ink-4); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:12px;">Dimension key</div>
+      <div style="font-size:12px; color:var(--ink-3); line-height:2;">
+        <div style="margin-bottom:6px;"><span style="font-family:'DM Mono',monospace; color:var(--ink-4);">PREV</span> — Prevalence rate</div>
+        <div style="margin-bottom:6px;"><span style="font-family:'DM Mono',monospace; color:var(--ink-4);">VOL</span> — Patient volume</div>
+        <div style="margin-bottom:6px;"><span style="font-family:'DM Mono',monospace; color:var(--ink-4);">GAP</span> — Treatment gap</div>
+        <div style="margin-bottom:6px;"><span style="font-family:'DM Mono',monospace; color:var(--ink-4);">MORT</span> — Mortality risk</div>
+        <div><span style="font-family:'DM Mono',monospace; color:var(--ink-4);">GROW</span> — Growth trajectory</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-card-title">Specialty burden radar</div>
+          <div class="chart-card-sub">Normalised 0–100 scale across five dimensions</div>
+        </div>
+        <span class="chart-tag">Radar</span>
+      </div>
+      <div class="legend-row" id="radar-legend"></div>
+      <div class="chart-wrap" style="height:300px;"><canvas id="radarChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <span>Sources: WHO Vietnam · Ministry of Health · Vietnam NCD Burden Report 2024 · Peer-reviewed literature</span>
+    <span>Model version 2.0 · April 2026 · All figures estimated</span>
+  </div>
+
+</div>
+
+<script>
+const D = [
+  { id:'cardio', name:'Cardiovascular',               color:'#c8392b', colorLight:'#f5e0de', low:18, high:33, treatGap:0.76, mortalityRate:0.008, annualIncrease:0.4,  radarMort:80, radarGrow:75 },
+  { id:'cancer', name:'Oncology (cancer)',             color:'#4a3fa8', colorLight:'#e4e2f7', low:1,  high:3,  treatGap:0.65, mortalityRate:0.04,  annualIncrease:0.08, radarMort:95, radarGrow:55 },
+  { id:'copd',   name:'Chronic respiratory',          color:'#1a7a56', colorLight:'#d8f0e7', low:5,  high:12, treatGap:0.65, mortalityRate:0.004, annualIncrease:0.2,  radarMort:40, radarGrow:65 },
+];
+
+let popBase = 72, growthRate = 1.2, treatRate = 24, driftMult = 1.0;
+let selectedYear = 0;
+let vals = { cardio: 33, cancer: 3, copd: 12 };
+let currentScen = 'high';
+
+const charts = {};
+
+function projPop(y) { return popBase * Math.pow(1 + growthRate / 100, y); }
+function projPrev(d, y, override) {
+  const base = override !== undefined ? override : vals[d.id];
+  const drift = d.annualIncrease * (d.id === 'cardio' ? driftMult : 1);
+  return Math.min(base + drift * y, base * 1.55);
+}
+function patientsMil(d, y, override) {
+  return projPop(y) * projPrev(d, y, override) / 100;
+}
+function fmt(n) {
+  if (n >= 1) return n.toFixed(1) + 'M';
+  return (n * 1000).toFixed(0) + 'K';
+}
+function fmtM(n) { return (n / 1e6).toFixed(2); }
+
+function allPatientsMil(y) {
+  return D.reduce((s, d) => s + patientsMil(d, y), 0);
+}
+
+function updateKPIs() {
+  const total = allPatientsMil(selectedYear);
+  const pop = projPop(selectedYear);
+  const base = allPatientsMil(0);
+  const untreated = D.reduce((s, d) => s + patientsMil(d, selectedYear) * d.treatGap, 0);
+  const cardioDeaths = Math.round(patientsMil(D[0], selectedYear) * 1e6 * D[0].mortalityRate);
+
+  document.getElementById('kpi-total').textContent = fmt(total);
+  document.getElementById('kpi-total-sub').textContent = '3 specialties · ' + (2025 + selectedYear);
+  document.getElementById('kpi-untreated').textContent = fmt(untreated);
+  document.getElementById('kpi-untreated-sub').textContent = Math.round(untreated / total * 100) + '% of total';
+  document.getElementById('kpi-pop').textContent = pop.toFixed(1) + 'M';
+  document.getElementById('kpi-pop-sub').textContent = 2025 + selectedYear + ' projection';
+  document.getElementById('kpi-deaths').textContent = cardioDeaths > 1e5 ? (cardioDeaths/1e3).toFixed(0)+'K' : cardioDeaths.toLocaleString();
+
+  const delta = total - base;
+  document.getElementById('kpi-total-trend').textContent = selectedYear > 0 ? '+' + fmt(delta) : '—';
+  document.getElementById('yr-label-head').textContent = 2025 + selectedYear;
+
+  [5,10,15].forEach(y => {
+    const d = allPatientsMil(y) - allPatientsMil(0);
+    const el = document.getElementById('yd-' + y);
+    if (el) el.textContent = '+' + fmt(d) + ' vs base';
+  });
+
+  const cardioTotal = patientsMil(D[0], selectedYear);
+  document.getElementById('insight-text').innerHTML =
+    `At <span>${2025 + selectedYear}</span>, an estimated <span>${fmt(total)}</span> Vietnamese adults are affected by the three modelled NCD categories. ` +
+    `Cardiovascular disease dominates at <span>${fmt(cardioTotal)}</span> patients — <span>${Math.round(cardioTotal/total*100)}%</span> of the total — ` +
+    `while <span>${fmt(untreated)}</span> patients (<span>${Math.round(untreated/total*100)}%</span>) remain outside the treatment system.`;
+}
+
+function buildLegend(id, items) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = items.map(it =>
+    `<span class="leg"><span class="leg-sq" style="background:${it.color};"></span>${it.label}</span>`
+  ).join('');
+}
+
+function initLineChart() {
+  const years = [0,5,10,15];
+  const labels = years.map(y => 2025+y);
+  charts.line = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: D.map(d => ({
+        label: d.name,
+        data: years.map(y => Math.round(patientsMil(d,y)*10)/10),
+        borderColor: d.color,
+        backgroundColor: d.color+'15',
+        borderWidth: 2.5,
+        pointRadius: 5,
+        pointBackgroundColor: d.color,
+        pointBorderColor: '#fafaf7',
+        pointBorderWidth: 2,
+        fill: true,
+        tension: 0.35
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + 'M' } } },
+      scales: {
+        x: { ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72' }, grid: { color: 'rgba(13,13,11,0.06)' } },
+        y: { ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72', callback: v => v + 'M' }, grid: { color: 'rgba(13,13,11,0.06)' }, beginAtZero: true }
+      }
+    }
+  });
+  buildLegend('line-legend', D.map(d => ({ color: d.color, label: d.name })));
+}
+
+function initDonutChart() {
+  charts.donut = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: D.map(d => d.name),
+      datasets: [{ data: D.map(d => Math.round(patientsMil(d,selectedYear)*10)/10), backgroundColor: D.map(d => d.color), borderWidth: 2, borderColor: '#fafaf7', hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed.toFixed(1) + 'M' } } }
+    }
+  });
+  buildLegend('donut-legend', D.map(d => ({ color: d.color, label: d.name.split(' ')[0] })));
+}
+
+function initStackedBar() {
+  charts.stacked = new Chart(document.getElementById('stackedBar'), {
+    type: 'bar',
+    data: {
+      labels: D.map(d => d.name.split(' ')[0]),
+      datasets: [
+        { label: 'Treated', data: D.map(d => Math.round(patientsMil(d,selectedYear)*(1-d.treatGap)*100)/100), backgroundColor: D.map(d => d.color), borderRadius: 2 },
+        { label: 'Untreated', data: D.map(d => Math.round(patientsMil(d,selectedYear)*d.treatGap*100)/100), backgroundColor: D.map(d => d.color+'55'), borderRadius: 2 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + 'M' } } },
+      scales: {
+        x: { stacked: true, ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72' }, grid: { display: false } },
+        y: { stacked: true, ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72', callback: v => v + 'M' }, grid: { color: 'rgba(13,13,11,0.06)' } }
+      }
+    }
+  });
+}
+
+function initIncrBar() {
+  const periods = ['2025–30','2030–35','2035–40'];
+  const periodYears = [[0,5],[5,10],[10,15]];
+  charts.incr = new Chart(document.getElementById('incrBar'), {
+    type: 'bar',
+    data: {
+      labels: periods,
+      datasets: D.map(d => ({
+        label: d.name.split(' ')[0],
+        data: periodYears.map(([a,b]) => Math.round((patientsMil(d,b)-patientsMil(d,a))*100)/100),
+        backgroundColor: d.color,
+        borderRadius: 2,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': +' + ctx.parsed.y.toFixed(2) + 'M' } } },
+      scales: {
+        x: { ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72' }, grid: { display: false } },
+        y: { ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72', callback: v => v + 'M' }, grid: { color: 'rgba(13,13,11,0.06)' } }
+      }
+    }
+  });
+}
+
+function initScenBar() {
+  const lowVals = { cardio: D[0].low, cancer: D[1].low, copd: D[2].low };
+  const highVals = { cardio: D[0].high, cancer: D[1].high, copd: D[2].high };
+  charts.scen = new Chart(document.getElementById('scenBar'), {
+    type: 'bar',
+    data: {
+      labels: D.map(d => d.name.split(' ')[0]),
+      datasets: [
+        { label: 'Conservative (2040)', data: D.map(d => Math.round(patientsMil(d,15,lowVals[d.id])*10)/10), backgroundColor: D.map(d => d.color+'55'), borderRadius: 2 },
+        { label: 'High burden (2040)', data: D.map(d => Math.round(patientsMil(d,15,highVals[d.id])*10)/10), backgroundColor: D.map(d => d.color), borderRadius: 2 },
+        { label: 'Custom (2040)', data: D.map(d => Math.round(patientsMil(d,15)*10)/10), backgroundColor: D.map(d => d.color+'99'), borderRadius: 2 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + 'M' } } },
+      scales: {
+        x: { ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72' }, grid: { display: false } },
+        y: { ticks: { font: { size: 11, family: 'DM Mono' }, color: '#7a7a72', callback: v => v + 'M' }, grid: { color: 'rgba(13,13,11,0.06)' } }
+      }
+    }
+  });
+  buildLegend('scen-legend', [
+    { color: D[0].color+'55', label: 'Conservative' },
+    { color: D[0].color, label: 'High burden' },
+    { color: D[0].color+'99', label: 'Custom' },
+  ]);
+}
+
+function initRadar() {
+  function radarData(d, y) {
+    const prev = projPrev(d, y);
+    const maxPrev = d.high * 1.55;
+    const vol = patientsMil(d, y);
+    const maxVol = patientsMil(D[0], 15);
+    return [
+      Math.round(prev / maxPrev * 100),
+      Math.round(vol / maxVol * 100),
+      Math.round(d.treatGap * 100),
+      d.radarMort,
+      d.radarGrow
+    ];
+  }
+  charts.radar = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: ['PREV', 'VOL', 'GAP', 'MORT', 'GROW'],
+      datasets: D.map(d => ({
+        label: d.name.split(' ')[0],
+        data: radarData(d, selectedYear),
+        borderColor: d.color,
+        backgroundColor: d.color+'22',
+        borderWidth: 2,
+        pointBackgroundColor: d.color,
+        pointRadius: 4
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          beginAtZero: true, max: 100,
+          ticks: { display: false },
+          grid: { color: 'rgba(13,13,11,0.10)' },
+          pointLabels: { font: { size: 11, family: 'DM Mono', weight: '500' }, color: '#4a4a44' },
+          angleLines: { color: 'rgba(13,13,11,0.10)' }
+        }
+      }
+    }
+  });
+  buildLegend('radar-legend', D.map(d => ({ color: d.color, label: d.name.split(' ')[0] })));
+}
+
+function updateAllCharts() {
+  const years = [0,5,10,15];
+  const periodYears = [[0,5],[5,10],[10,15]];
+  const lowVals = { cardio: D[0].low, cancer: D[1].low, copd: D[2].low };
+  const highVals = { cardio: D[0].high, cancer: D[1].high, copd: D[2].high };
+
+  if (charts.line) {
+    charts.line.data.datasets.forEach((ds, i) => {
+      ds.data = years.map(y => Math.round(patientsMil(D[i],y)*10)/10);
+    });
+    charts.line.update('none');
+  }
+
+  const total = allPatientsMil(selectedYear);
+  if (charts.donut) {
+    charts.donut.data.datasets[0].data = D.map(d => Math.round(patientsMil(d,selectedYear)*100)/100);
+    charts.donut.update('none');
+    document.getElementById('donut-center-val').textContent = total.toFixed(1);
+  }
+
+  if (charts.stacked) {
+    charts.stacked.data.datasets[0].data = D.map(d => Math.round(patientsMil(d,selectedYear)*(1-d.treatGap)*100)/100);
+    charts.stacked.data.datasets[1].data = D.map(d => Math.round(patientsMil(d,selectedYear)*d.treatGap*100)/100);
+    charts.stacked.update('none');
+  }
+
+  if (charts.incr) {
+    charts.incr.data.datasets.forEach((ds, i) => {
+      ds.data = periodYears.map(([a,b]) => Math.round((patientsMil(D[i],b)-patientsMil(D[i],a))*100)/100);
+    });
+    charts.incr.update('none');
+  }
+
+  if (charts.scen) {
+    charts.scen.data.datasets[0].data = D.map(d => Math.round(patientsMil(d,15,lowVals[d.id])*10)/10);
+    charts.scen.data.datasets[1].data = D.map(d => Math.round(patientsMil(d,15,highVals[d.id])*10)/10);
+    charts.scen.data.datasets[2].data = D.map(d => Math.round(patientsMil(d,15)*10)/10);
+    charts.scen.update('none');
+  }
+
+  if (charts.radar) {
+    const maxVol = patientsMil(D[0], 15);
+    charts.radar.data.datasets.forEach((ds, i) => {
+      const d = D[i];
+      const prev = projPrev(d, selectedYear);
+      const maxPrev = d.high * 1.55;
+      const vol = patientsMil(d, selectedYear);
+      ds.data = [
+        Math.round(prev / maxPrev * 100),
+        Math.round(vol / maxVol * 100),
+        Math.round(d.treatGap * 100),
+        d.radarMort,
+        d.radarGrow
+      ];
+    });
+    charts.radar.update('none');
+  }
+}
+
+function updateSpecTable() {
+  const tbody = document.getElementById('spec-tbody');
+  const maxPts = Math.max(...D.map(d => patientsMil(d, selectedYear)));
+  tbody.innerHTML = D.map(d => {
+    const pts = patientsMil(d, selectedYear);
+    const treated = pts * (1 - d.treatGap);
+    const untreated = pts * d.treatGap;
+    const prev = projPrev(d, selectedYear);
+    const barW = Math.round(pts / maxPts * 100);
+    return `<tr>
+      <td><span style="display:inline-flex;align-items:center;gap:8px;">
+        <span style="width:3px;height:20px;background:${d.color};display:inline-block;"></span>
+        <span style="font-size:13px;font-weight:600;">${d.name}</span>
+      </span></td>
+      <td class="mono">${prev.toFixed(1)}%</td>
+      <td class="mono">${fmt(pts)}</td>
+      <td class="mono" style="color:${d.color};">${fmt(treated)}</td>
+      <td class="mono">${fmt(untreated)}</td>
+      <td class="mono">${Math.round(d.treatGap*100)}%</td>
+      <td><div class="bar-bg"><div class="bar-fill" style="width:${barW}%;background:${d.color};"></div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildDiseaseSliders() {
+  const container = document.getElementById('disease-sliders');
+  container.innerHTML = '';
+  D.forEach(d => {
+    const div = document.createElement('div');
+    div.className = 'disease-block';
+    div.innerHTML = `
+      <div class="disease-header">
+        <div class="disease-color-bar" style="background:${d.color};"></div>
+        <span class="disease-name">${d.name}</span>
+        <span class="disease-pct" id="pct-${d.id}" style="color:${d.color};">${vals[d.id].toFixed(1)}%</span>
+      </div>
+      <div class="disease-body">
+        <div class="slider-track-wrap">
+          <span class="track-label">${d.low}%</span>
+          <input class="disease-slider" type="range" id="sl-${d.id}"
+            min="${d.low}" max="${d.high}" step="0.1" value="${vals[d.id]}"
+            style="background: linear-gradient(to right, ${d.color} 0%, ${d.color} ${((vals[d.id]-d.low)/(d.high-d.low)*100).toFixed(0)}%, #e2e0d8 ${((vals[d.id]-d.low)/(d.high-d.low)*100).toFixed(0)}%, #e2e0d8 100%); color:${d.color};" />
+          <span class="track-label r">${d.high}%</span>
+        </div>
+        <div class="disease-stats">
+          <div class="ds-item"><div class="ds-label">Patients (base yr)</div><div class="ds-val" id="ds-base-${d.id}">—</div></div>
+          <div class="ds-item"><div class="ds-label">Patients (2040)</div><div class="ds-val" id="ds-2040-${d.id}">—</div></div>
+          <div class="ds-item"><div class="ds-label">Treat. gap</div><div class="ds-val">${Math.round(d.treatGap*100)}%</div></div>
+        </div>
+      </div>`;
+    container.appendChild(div);
+
+    const sl = document.getElementById('sl-' + d.id);
+    sl.style.setProperty('color', d.color);
+    sl.addEventListener('input', e => {
+      vals[d.id] = parseFloat(e.target.value);
+      const pct = ((vals[d.id]-d.low)/(d.high-d.low)*100).toFixed(0);
+      sl.style.background = `linear-gradient(to right, ${d.color} 0%, ${d.color} ${pct}%, #e2e0d8 ${pct}%, #e2e0d8 100%)`;
+      document.getElementById('pct-' + d.id).textContent = vals[d.id].toFixed(1) + '%';
+      currentScen = 'custom';
+      document.querySelectorAll('.scen-btn').forEach(b => b.classList.toggle('active', b.dataset.s === 'custom'));
+      refreshAll();
+    });
+  });
+  updateDiseaseStats();
+}
+
+function updateDiseaseStats() {
+  D.forEach(d => {
+    const b = document.getElementById('ds-base-' + d.id);
+    const e = document.getElementById('ds-2040-' + d.id);
+    if (b) b.textContent = fmt(patientsMil(d, 0));
+    if (e) e.textContent = fmt(patientsMil(d, 15));
+  });
+}
+
+function refreshAll() {
+  updateKPIs();
+  updateSpecTable();
+  updateDiseaseStats();
+  updateAllCharts();
+}
+
+function setYear(y) {
+  selectedYear = y;
+  document.querySelectorAll('.yr-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.yr) === y));
+  refreshAll();
+}
+
+function setScen(s) {
+  currentScen = s;
+  document.querySelectorAll('.scen-btn').forEach(b => b.classList.toggle('active', b.dataset.s === s));
+  if (s === 'low') { D.forEach(d => { vals[d.id] = d.low; }); }
+  else if (s === 'high') { D.forEach(d => { vals[d.id] = d.high; }); }
+  D.forEach(d => {
+    const sl = document.getElementById('sl-' + d.id);
+    if (sl) {
+      sl.value = vals[d.id];
+      const pct = ((vals[d.id]-d.low)/(d.high-d.low)*100).toFixed(0);
+      sl.style.background = `linear-gradient(to right, ${d.color} 0%, ${d.color} ${pct}%, #e2e0d8 ${pct}%, #e2e0d8 100%)`;
+      document.getElementById('pct-' + d.id).textContent = vals[d.id].toFixed(1) + '%';
+    }
+  });
+  refreshAll();
+}
+
+document.getElementById('pop').addEventListener('input', e => {
+  popBase = parseFloat(e.target.value);
+  document.getElementById('pop-out').textContent = popBase.toFixed(1) + 'M';
+  refreshAll();
+});
+document.getElementById('growth').addEventListener('input', e => {
+  growthRate = parseFloat(e.target.value);
+  document.getElementById('growth-out').textContent = growthRate.toFixed(1) + '%';
+  refreshAll();
+});
+document.getElementById('treat').addEventListener('input', e => {
+  treatRate = parseInt(e.target.value);
+  document.getElementById('treat-out').textContent = treatRate + '%';
+  refreshAll();
+});
+document.getElementById('drift').addEventListener('input', e => {
+  driftMult = parseFloat(e.target.value) / 0.4;
+  document.getElementById('drift-out').textContent = '+' + parseFloat(e.target.value).toFixed(2) + 'pp';
+  refreshAll();
+});
+
+buildDiseaseSliders();
+updateKPIs();
+updateSpecTable();
+
+setTimeout(() => {
+  initLineChart();
+  initDonutChart();
+  initStackedBar();
+  initIncrBar();
+  initScenBar();
+  initRadar();
+  updateAllCharts();
+  document.getElementById('donut-center-val').textContent = allPatientsMil(selectedYear).toFixed(1);
+}, 80);
+</script>
+</body>
+</html>
